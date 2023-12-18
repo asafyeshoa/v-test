@@ -22,35 +22,27 @@
   </div>
 </template>
 
+<!--  some adjustments needed  -->
+
 <script setup>
 import { ref, onMounted } from 'vue';
 import NoteForm from './NoteForm.vue';
-const notes = ref([
-  {
-    title: 'Shopping List',
-    description: 'Milk, Bread, Eggs, Butter',
-    tags: ['groceries', 'urgent'],
-    color: '#ffccaa'
-  },
-  {
-    title: 'ToDo',
-    description: 'Vue project, Math homework',
-    tags: ['work', 'study'],
-    color: '#aad4ff'
-  }
-]);
+import {api} from "../utils/axios.js"
+const notes = ref([]);
 
 const showForm = ref(false);
 const editableNote = ref({});
 const editIndex = ref(-1);
 
 const addNote = () => {
-  editableNote.value = { title: '', description: '', tags: [], color: '#ffffff' };
+  editableNote.value = { title: '', description: '', tags: [], color: '#ffffff', traderId: 1 };
   editIndex.value = -1;
   showForm.value = true;
 };
 
-const deleteAllNotes = () => {
+const deleteAllNotes = async () => {
+  const ids = notes.value.map((_, index) => index);
+  await api.deleteNotes(ids);
   notes.value = [];
 };
 
@@ -60,28 +52,46 @@ const editNote = (index) => {
   showForm.value = true;
 };
 
-const deleteNote = (index) => {
+const deleteNote = async (index) => {
+  await api.deleteNotes([index]);
   notes.value.splice(index, 1);
 };
 
-const saveNote = (updatedNote) => {
+const saveNote = async (updatedNote) => {
   if (editIndex.value >= 0) {
+    updatedNote.id = editIndex.value;
+    await api.editNote(updatedNote);
     notes.value[editIndex.value] = updatedNote;
   } else {
+    await api.createNote(updatedNote);
     notes.value.push(updatedNote);
   }
   showForm.value = false;
 };
 
-onMounted(() => {
-})
+const transformNotesArray = (notes) => {
+  return notes.map(note => ({
+    title: note['notes.title'],
+    description: note['notes.description'],
+    tags: note['notes.tags'],
+    color: note['notes.color']
+  }));
+}
+
+onMounted(async () => {
+  const fetchedNotes = await api.getNotes();
+  const transformedNotes = transformNotesArray(fetchedNotes.data.data);
+  console.log(transformedNotes);
+  notes.value = transformedNotes;
+});
+
 </script>
 
 
 
 <style>
 .notes-container {
-  width: 800px;
+  width: 1000px;
   height: 90%;
   margin: auto;
   padding: 20px;

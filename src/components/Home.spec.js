@@ -1,0 +1,62 @@
+import { mount } from "@vue/test-utils";
+import Home from "./Home.vue";
+
+describe("Home", () => {
+    let wrapper;
+
+    beforeEach(() => {
+        wrapper = mount(Home);
+    });
+
+    it("renders the container", () => {
+        expect(wrapper.find('.notes-container').exists()).toBe(true);
+    });
+
+    it("initially has two notes", () => {
+        const notes = wrapper.findAll('.note');
+        expect(notes.length).toBe(2);
+    });
+
+    it("creates a new note", async () => {
+        await wrapper.find('.create-note-button').trigger('click');
+        await wrapper.find('#title').setValue('New Note');
+        await wrapper.find('#description').setValue('New Description');
+        await wrapper.find('#tags').setValue('tag1, tag2');
+        await wrapper.find('#color').setValue('#ffcc00');
+        await wrapper.find('.note-form button').trigger('click');
+        await wrapper.vm.$nextTick();
+        expect(wrapper.findAll('.note').length).toBe(3);
+    });
+
+
+    it("edits the last note", async () => {
+        const noteCount = wrapper.findAll('.note').length;
+        const lastNoteEditButton = wrapper.find(`[data-testid="edit-note-${noteCount - 1}"]`);
+        await lastNoteEditButton.trigger('click');
+        await wrapper.find('#title').setValue('Edited Title');
+        await wrapper.find('#description').setValue('Edited Description');
+        await wrapper.find('.note-form button').trigger('click'); 
+        await wrapper.vm.$nextTick();
+        const lastNote = wrapper.findAll('.note').at(-1);
+        expect(lastNote.text()).toContain('Edited Title');
+        expect(lastNote.text()).toContain('Edited Description');
+    });
+    
+
+    it("deletes the last note", async () => {
+        const noteCount = wrapper.findAll('.note').length;
+        const lastNoteDeleteButton = wrapper.find(`[data-testid="delete-note-${noteCount - 1}"]`);
+        await lastNoteDeleteButton.trigger('click');
+        await wrapper.vm.$nextTick();
+        expect(wrapper.findAll('.note').length).toBe(noteCount - 1);
+    });
+    
+
+    it("deletes all notes", async () => {
+        await wrapper.find('.delete-all-notes-button').trigger('click');
+        await wrapper.vm.$nextTick();
+        expect(wrapper.findAll('.note').length).toBe(0);
+    });
+    
+    
+});
