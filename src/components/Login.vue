@@ -15,20 +15,14 @@
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      username: '',
-      password: ''
-    };
-  },
-  methods: {
-    onLogin() {
-      console.log('Login attempt:', this.username, this.password);
-      // Add your login logic here
-    }
-  }
+<script setup>
+import { ref } from 'vue';
+
+const username = ref('');
+const password = ref('');
+
+const onLogin = () => {
+  // console.log('Login attempt:', username.value, password.value);
 };
 </script>
 

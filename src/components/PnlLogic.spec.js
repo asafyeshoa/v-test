@@ -1,0 +1,40 @@
+import pnlLogic from "./actions/pnlLogic.js";
+
+describe("Pnl with Logic file", () => {
+  it("calculateBalance updates balance correctly", () => {
+    const params = { balance: 1000, profit: 50 };
+    const res = pnlLogic.calculateBalance(params);
+    expect(res).toBe(1050);
+  });
+
+  it("calculateMargin updates margin correctly", () => {
+    const params = { lot: 1, openPrice: 1.2 };
+    const res = pnlLogic.calculateMargin(params);
+    expect(res).toBeGreaterThan(0);
+  });
+
+  it("calculateEquity updates equity correctly", () => {
+    const params = { balance: 1000, credit: 100, profit: 50 };
+    const res = pnlLogic.calculateEquity(params);
+    expect(res).toBe(1150);
+  });
+
+  it("calculateFreeMargin updates freeMargin correctly", () => {
+    const params = { equity: 1100, margin: 100 };
+    const res = pnlLogic.calculateFreeMargin(params);
+    expect(res).toBe(1000);
+  });
+
+  it("calculateMarginLevel updates marginLevel correctly", () => {
+    const params = { equity: 1100, margin: 0 };
+    const res = pnlLogic.calculateMarginLevel(params);
+    expect(res).toBe(-Infinity); 
+  });
+  
+
+  it("calculateProfit updates profit correctly", () => {
+    const params = { equity: 1100, balance: 1000 };
+    const res = pnlLogic.calculateProfit(params);
+    expect(res).toBe(100);
+  });
+});

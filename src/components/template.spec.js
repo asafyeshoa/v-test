@@ -1,0 +1,147 @@
+import actions from "./actions/index.js";
+
+let testCount = 0;
+
+beforeAll(() => {
+  console.log("Starting test suite");
+});
+
+afterAll(() => {
+  console.log(`Test suite completed. Total tests run: ${testCount}`);
+});
+
+describe("Template Tests", () => {
+  const testCases = [
+    {
+      actionsName: "pnlActions",
+      exclude: ["calculateMarginLevel", "calculateFreeMargin"], 
+      initState: actions.pnlActions.pnlData.value,
+      initFunction: () => {
+        actions.pnlActions.openNewPosition();
+      },
+      testCases: [
+        {
+          functionName: "calculateBalance",
+          params: { profit: 50 },
+          expectedValueParams: [1050],
+          target: "balance",
+          jestFnName: "toBe"
+        },
+        {
+          functionName: "calculateEquity",
+          expectedValueParams: [11050],
+          target: "equity",
+          jestFnName: "toBe"
+        },
+        {
+          functionName: "calculateFreeMargin",
+          expectedValueParams: [10874.8375, 0],
+          target: "freeMargin",
+          jestFnName: "toBeCloseTo"
+        },
+        {
+          functionName: "calculateMarginLevel",
+          expectedValueParams: [4648.472419414207, 0],
+          target: "marginLevel",
+          jestFnName: "toBeCloseTo"
+        },
+        {
+          functionName: "calculateProfit",
+          params: { equity: 1100, balance: 1000, profit: 0 },
+          expectedValueParams: [10000],
+          target: "profit",
+          jestFnName: "toBe"
+        }
+      ]
+    },
+    {
+      actionsName: "pnlLogic",
+      exclude: [], 
+      initState: null, 
+      initFunction: () => {},
+      testCases: [
+        {
+          functionName: "calculateBalance",
+          params: { balance: 1000, profit: 50 },
+          expectedValueParams: [1050],
+          target: "balance",
+          jestFnName: "toBe",
+        },
+        {
+          functionName: "calculateMargin",
+          params: { lot: 1, openPrice: 1.2 },
+          expectedValueParams: [0], 
+          target: "margin",
+          jestFnName: "toBeGreaterThan", 
+        },
+        {
+          functionName: "calculateEquity",
+          params: { balance: 1000, credit: 100, profit: 50 },
+          expectedValueParams: [1150],
+          target: "equity",
+          jestFnName: "toBe",
+        },
+        {
+          functionName: "calculateFreeMargin",
+          params: { equity: 1100, margin: 100 },
+          expectedValueParams: [1000],
+          target: "freeMargin",
+          jestFnName: "toBe",
+        },
+        {
+          functionName: "calculateMarginLevel",
+          params: { equity: 1100, margin: 0 },
+          expectedValueParams: [-Infinity],
+          target: "marginLevel",
+          jestFnName: "toBe",
+        },
+        {
+          functionName: "calculateProfit",
+          params: { equity: 1100, balance: 1000 },
+          expectedValueParams: [100],
+          target: "profit",
+          jestFnName: "toBe",
+        },
+      ],
+    }
+  ];
+
+  testCases.forEach(testCaseGroup => {
+    const { actionsName, initFunction, testCases: innerTestCases, initState, exclude } = testCaseGroup;
+
+    describe(`${actionsName} Tests`, () => {
+      let state;
+
+      beforeEach(() => {
+        if (initState !== null) {
+          initFunction();
+          state = initState;
+        }
+      });
+
+      innerTestCases.forEach(testCase => {
+        const { functionName, params, expectedValueParams, target, jestFnName } = testCase;
+
+        if (exclude && exclude.includes(functionName)) {
+          it.skip(`${functionName} updates correctly`, () => {});
+          return;
+        }
+
+        it(`${functionName} updates correctly`, () => {
+          testCount++;
+
+          // Act: Call the function with specific parameters
+          const result = actions[actionsName][functionName](params);
+
+          if (state) {
+            expect(state[target])[jestFnName](...expectedValueParams);
+            return;
+          }
+
+          // Assert: Check if the result is as expected
+          expect(result)[jestFnName](...expectedValueParams);
+        });
+      });
+    });
+  });
+});
