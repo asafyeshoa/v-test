@@ -1,5 +1,5 @@
 import { mount } from "@vue/test-utils";
-import Notes from "./Notes.vue";
+import Notes from "../components/Notes.vue";
 
 describe("Notes", () => {
     let wrapper;
