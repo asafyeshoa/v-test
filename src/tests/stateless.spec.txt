@@ -1,0 +1,92 @@
+import services from "../services/index.js";
+
+let testCount = 0;
+
+beforeAll(() => {
+  console.log("Starting test suite");
+});
+
+afterAll(() => {
+  console.log(`Test suite completed. Total tests run: ${testCount}`);
+});
+
+describe("Services Tests", () => {
+  const testCases = [
+    {
+      actionsName: "localStorage",
+      exclude: [],
+      initFunction: () => {
+        localStorage.clear();
+      },
+      testCases: [
+        {
+          functionName: "write",
+          params: { key: 'testKey', value: { foo: 'bar' } },
+          expectedValueParams: [{ foo: 'bar' }],
+          jestFnName: "toEqual",
+          resultFunction: () => {
+            services.localStorage.write('testKey', { foo: 'bar' });
+            return services.localStorage.read('testKey');
+          }
+        },
+        {
+          functionName: "remove",
+          params: { key: 'testKey' },
+          expectedValueParams: [null],
+          jestFnName: "toBeNull",
+          resultFunction: () => {
+            // Ensure localStorage is updated before retrieving the result
+            services.localStorage.remove('testKey');
+            return services.localStorage.read('testKey');
+          }
+        },
+        {
+          functionName: "clearAll",
+          params: {},
+          expectedValueParams: [null, null],
+          jestFnName: "toBeNull",
+          resultFunction: () => {
+            // Ensure localStorage is updated before retrieving the result
+            services.localStorage.clearAll();
+            return [
+              services.localStorage.read('testKey1'),
+              services.localStorage.read('testKey2')
+            ];
+          }
+        }
+      ],
+    },
+  ];
+  
+
+  testCases.forEach(testCaseGroup => {
+    const { actionsName, initFunction, testCases: innerTestCases, exclude } = testCaseGroup;
+
+    describe(`${actionsName} Tests`, () => {
+
+      beforeEach(() => {
+        initFunction();
+      });
+
+      innerTestCases.forEach(testCase => {
+        const { functionName, params, expectedValueParams, jestFnName, resultFunction } = testCase;
+
+        if (exclude && exclude.includes(functionName)) {
+          it.skip(`${functionName} updates correctly`, () => {});
+          return;
+        }
+
+        it(`${functionName} updates correctly`, () => {
+          testCount++;
+
+          // Act: Call the function with specific parameters
+          services[actionsName][functionName](params);
+
+          // Assert: Check if the result is as expected
+          const result = resultFunction();  // Call the function to get the result
+          expect(result)[jestFnName](...expectedValueParams);
+        });
+      });
+    });
+  });
+});

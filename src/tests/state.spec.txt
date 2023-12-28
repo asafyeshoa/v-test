@@ -1,4 +1,20 @@
-import actions from "./actions/index.js";
+import actions from "../components/actions/index.js";
+
+
+
+
+   const calculateBalance_EquityIsNull_ThrowError = ([]) => ({
+    
+      arrange: () => {
+        const equity = 1100;
+        return equity;
+      },
+      act: (equity) => pnlData.calculateBalance({ equity, margin }),
+      assert: (calculatedBalance) => calculatedBalance.ToBe(equity - margin)
+    });
+
+
+
 
 let testCount = 0;
 
@@ -9,6 +25,17 @@ beforeAll(() => {
 afterAll(() => {
   console.log(`Test suite completed. Total tests run: ${testCount}`);
 });
+
+
+// const calculateBalance_EquityIsNull_ThrowError = (margin) => ({
+//   arrange: () => {
+//     const equity = 1100;
+//     return equity;
+//   },
+//   act: (equity) => pnlData.calculateBalance({ equity, margin }),
+//   assert: (calculatedBalance) => calculatedBalance.ToBe(equity - margin)
+// });
+
 
 describe("Template Tests", () => {
   const testCases = [

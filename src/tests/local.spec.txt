@@ -1,0 +1,44 @@
+import LocalStorageService from '../services/localStorage.js';
+
+describe('LocalStorageService', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('should write and read data to/from localStorage', () => {
+    const key = 'testKey';
+    const value = { foo: 'bar' };
+
+    LocalStorageService.write(key, value);
+
+    const result = LocalStorageService.read(key);
+
+    expect(result).toEqual(value);
+  });
+
+  it('should remove data from localStorage', () => {
+    const key = 'testKey';
+    const value = { foo: 'bar' };
+
+    localStorage.setItem(key, JSON.stringify(value));
+
+    LocalStorageService.remove(key);
+
+    const result = localStorage.getItem(key);
+
+    expect(result).toBeNull();
+  });
+
+  it('should clear all data from localStorage', () => {
+    const key1 = 'testKey1';
+    const key2 = 'testKey2';
+
+    localStorage.setItem(key1, 'value1');
+    localStorage.setItem(key2, 'value2');
+
+    LocalStorageService.clearAll();
+
+    expect(localStorage.getItem(key1)).toBeNull();
+    expect(localStorage.getItem(key2)).toBeNull();
+  });
+});

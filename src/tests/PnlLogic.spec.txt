@@ -1,5 +1,6 @@
 import pnlLogic from "./actions/pnlLogic.js";
 
+
 describe("Pnl with Logic file", () => {
   it("calculateBalance updates balance correctly", () => {
     const params = { balance: 1000, profit: 50 };
@@ -8,9 +9,11 @@ describe("Pnl with Logic file", () => {
   });
 
   it("calculateMargin updates margin correctly", () => {
+
     const params = { lot: 1, openPrice: 1.2 };
     const res = pnlLogic.calculateMargin(params);
     expect(res).toBeGreaterThan(0);
+
   });
 
   it("calculateEquity updates equity correctly", () => {
@@ -19,10 +22,22 @@ describe("Pnl with Logic file", () => {
     expect(res).toBe(1150);
   });
 
-  it("calculateFreeMargin updates freeMargin correctly", () => {
-    const params = { equity: 1100, margin: 100 };
-    const res = pnlLogic.calculateFreeMargin(params);
-    expect(res).toBe(1000);
+  it("calculateFreeMargin updates freeMargin correctly", (margin) => {
+
+    const equity = 1100;
+
+    const res = pnlLogic.calculateFreeMargin({equity, margin});
+
+    expect(res).toBe(equity - margin);
+  });
+
+  it("calculateFreeMargin updates freeMargin correctly", (margin = null) => {
+
+    const equity = 1100;
+
+    const res = pnlLogic.calculateFreeMargin({equity, margin});
+
+    expect(res).isNull(equity - margin);
   });
 
   it("calculateMarginLevel updates marginLevel correctly", () => {
